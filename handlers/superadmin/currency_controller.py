@@ -104,6 +104,10 @@ async def get_currency(call: CallbackQuery):
                                                               callback_data=f"superadmin:edit_rate:{currency[0]}")
                                      ],
                                      [
+                                         InlineKeyboardButton(text="✍️ Valyuta nomini o'zgartirish",
+                                                              callback_data=f"superadmin:edit_name:{currency[0]}")
+                                     ],
+                                     [
                                          InlineKeyboardButton(text="⬅️ Orqaga", callback_data="superadmin:currency")
                                      ]
                                  ]))
@@ -176,3 +180,21 @@ async def delete_currency(call: CallbackQuery):
     currency_id = call.data.split(":")[-1]
     await db.delete_currency(id=int(currency_id))
     await call.message.edit_text("Valyuta o'chirildi!", reply_markup=menu_super_admin)
+
+
+@dp.callback_query_handler(IsSuperAdmin(), text_contains="superadmin:edit_name", state="*")
+async def edit_name(call: CallbackQuery, state: FSMContext):
+    await call.answer(cache_time=1)
+    currency_id = call.data.split(":")[-1]
+    await state.update_data(currency_id=currency_id)
+    await call.message.edit_text("Yangi valyuta nomini kiriting:")
+    await state.set_state(f"edit_name:name")
+
+
+@dp.message_handler(IsSuperAdmin(), state="edit_name:name")
+async def get_name(message: Message, state: FSMContext):
+    name = message.text
+    data = await state.get_data()
+    await db.update_currency_name(id=int(data["currency_id"]), name=name)
+    await message.answer("✅ Valyuta nomi muvaffaqiyatli o'zgartirildi!", reply_markup=menu_super_admin)
+    await state.finish()

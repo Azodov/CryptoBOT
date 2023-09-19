@@ -180,6 +180,25 @@ class Database:
             """
         return await self.execute(sql, fetch=True)
 
+
+    async def update_user_language(self, telegram_id: int, language: str):
+        sql = """
+            UPDATE users SET language=$1 WHERE telegram_id=$2
+            """
+        return await self.execute(sql, language, telegram_id, execute=True)
+
+    async def update_user_phone_number(self, telegram_id: int, phone_number: str):
+        sql = """
+            UPDATE users SET phone_number=$1 WHERE telegram_id=$2
+            """
+        return await self.execute(sql, phone_number, telegram_id, execute=True)
+
+    async def update_user_fullname(self, telegram_id: int, fullname: str):
+        sql = """
+            UPDATE users SET fullname=$1 WHERE telegram_id=$2
+            """
+        return await self.execute(sql, fullname, telegram_id, execute=True)
+
     """
     ---------------------------------------------CURRENCIES CONTROLLER--------------------------------------------------
     """
@@ -213,6 +232,12 @@ class Database:
             """
         return await self.execute(sql, btc_rate, eth_rate, usdt_rate, humo_rate, uzcard_rate, visa_rate, id,
                                   execute=True)
+
+    async def update_currency_name(self, id: int, name: str):
+        sql = """
+            UPDATE currencies SET name=$1 WHERE id=$2
+            """
+        return await self.execute(sql, name, id, execute=True)
 
     async def delete_currency(self, **kwargs):
         sql = """
